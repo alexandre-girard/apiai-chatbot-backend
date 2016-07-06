@@ -26,8 +26,14 @@ public class WeebhookController {
         
         String intentName = message.getResult().getMetadata().getIntentName();
         
+        // Gestion du compteur
+        int counter = 0;
+        if(message.getResult().getParameters().containsKey("counter")){
+            counter = Integer.parseInt(message.getResult().getParameters().get("counter"));
+        }
+        
         if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
-            return "{\"speech\":\"Je ne comprend pas...\", \"displayText\": \"reponse webhook ggg\"}";            
+            return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\"}";            
         }else{
             return "{\"speech\":\"Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989 \", \"displayText\": \"reponse webhook ggg\"}";
         }
