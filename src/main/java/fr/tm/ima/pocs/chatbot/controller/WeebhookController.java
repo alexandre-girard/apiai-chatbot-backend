@@ -42,16 +42,16 @@ public class WeebhookController {
         
         // Gestion du compteur
         int counter = 0;
-        List<ApiAiContext> apiAiContexts = message.getResult().getContexts();
-        for (ApiAiContext apiAiContext : apiAiContexts) {
-            if(apiAiContext.getParameters().containsKey(COUNTER)){
-                counter = Integer.parseInt(apiAiContext.getParameters().get(COUNTER));
-                
-                System.out.println("Valeur counter " + counter);
-                
-                apiAiContext.getParameters().put(COUNTER, Integer.toString(counter +1));
-            }            
-        }
+//        List<ApiAiContext> apiAiContexts = message.getResult().getContexts();
+//        for (ApiAiContext apiAiContext : apiAiContexts) {
+//            if(apiAiContext.getParameters().containsKey(COUNTER)){
+//                counter = Integer.parseInt(apiAiContext.getParameters().get(COUNTER));
+//                
+//                System.out.println("Valeur counter " + counter);
+//                
+//                apiAiContext.getParameters().put(COUNTER, Integer.toString(counter +1));
+//            }            
+//        }
         // Préparatoin de la réponse
         WebhookResponse webhookResponse = new WebhookResponse();
         
@@ -64,7 +64,7 @@ public class WeebhookController {
         outApiAiContext.setParameters(parameters);
         outApiAiContext.setLifespan(2);
         outApiAiContexts.add(outApiAiContext);
-        webhookResponse.setContextOut(apiAiContexts);
+        webhookResponse.setContextOut(outApiAiContexts);
         
         ObjectMapper mapper = new ObjectMapper();
         
