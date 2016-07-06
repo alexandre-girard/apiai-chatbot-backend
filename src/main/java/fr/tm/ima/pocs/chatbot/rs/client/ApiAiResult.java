@@ -5,12 +5,13 @@ import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiAiResult {
 
     String source;
     
     String resolvedQuery;
+    
+    String speech;
     
     String action;
     
@@ -23,6 +24,8 @@ public class ApiAiResult {
 	Map<String, String> parameters;
 	
 	List<ApiAiContext> contexts;
+	
+	private float score;
 
 	public String getSource() {
         return source;
@@ -38,6 +41,16 @@ public class ApiAiResult {
 
     public void setResolvedQuery(String resolvedQuery) {
         this.resolvedQuery = resolvedQuery;
+    }
+
+    
+    
+    public String getSpeech() {
+        return speech;
+    }
+
+    public void setSpeech(String speech) {
+        this.speech = speech;
     }
 
     public String getAction() {
@@ -91,6 +104,14 @@ public class ApiAiResult {
 
     public void setContexts(List<ApiAiContext> contexts) {
         this.contexts = contexts;
+    }
+    
+    public float getScore() {
+        return score;
+    }
+
+    public void setScore(float score) {
+        this.score = score;
     }
 
     @Override
