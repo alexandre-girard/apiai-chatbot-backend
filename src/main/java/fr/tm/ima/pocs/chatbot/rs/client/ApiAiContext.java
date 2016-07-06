@@ -1,10 +1,13 @@
 package fr.tm.ima.pocs.chatbot.rs.client;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import java.util.Map;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiAiContext {
     private String name;
+
+    private Map<String, String> parameters;
+    
+    private int lifespan;
 
     public ApiAiContext() {
         super();
@@ -21,6 +24,22 @@ public class ApiAiContext {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+    }
+    
+    public int getLifespan() {
+        return lifespan;
+    }
+
+    public void setLifespan(int lifespan) {
+        this.lifespan = lifespan;
     }
 
     @Override
