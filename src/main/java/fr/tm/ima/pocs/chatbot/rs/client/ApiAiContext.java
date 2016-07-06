@@ -44,7 +44,7 @@ public class ApiAiContext {
 
     @Override
     public String toString() {
-        return "ApiAiContext [name=" + name + "]";
+        return "[name=" + name + ", parameters=" + parameters + ", lifespan=" + lifespan + "]";
     }
 
     @Override

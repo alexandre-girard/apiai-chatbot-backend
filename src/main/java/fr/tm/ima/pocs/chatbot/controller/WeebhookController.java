@@ -17,6 +17,7 @@ import fr.tm.ima.pocs.chatbot.rs.client.ApiAiContext;
 
 @RestController
 public class WeebhookController {
+    private static final String COUNTER = "counter";
     /**
      * Logger.
      */
@@ -26,7 +27,7 @@ public class WeebhookController {
     @RequestMapping(value = "/webhook", method = RequestMethod.POST)
     @Produces(MediaType.APPLICATION_JSON)
     WebhookResponse webhook(@RequestBody final WebhookMessage message) {
-        LOGGER.info("Appel de la méthode /webhook du controller " + message);
+        LOGGER.info("Appel de la méthode /webhook du controller");
         
         String intentName = message.getResult().getMetadata().getIntentName();
         
@@ -34,12 +35,12 @@ public class WeebhookController {
         int counter = 0;
         List<ApiAiContext> apiAiContexts = message.getResult().getContexts();
         for (ApiAiContext apiAiContext : apiAiContexts) {
-            if(apiAiContext.getParameters().containsKey("counter")){
-                counter = Integer.parseInt(apiAiContext.getParameters().get("counter"));
+            if(apiAiContext.getParameters().containsKey(COUNTER)){
+                counter = Integer.parseInt(apiAiContext.getParameters().get(COUNTER));
                 
                 System.out.println("Valeur counter " + counter);
                 
-                apiAiContext.getParameters().put("counter", Integer.toString(counter +1));
+                apiAiContext.getParameters().put(COUNTER, Integer.toString(counter +1));
             }            
         }
         // ddd
@@ -51,7 +52,7 @@ public class WeebhookController {
         if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
             webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
             
-            System.out.println(webhookResponse.getContextOut().get(0).getParameters().get("counter"));
+            System.out.println(webhookResponse.getContextOut().get(0).getParameters().get(COUNTER));
             
             //return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\"}";            
         }else{
