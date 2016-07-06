@@ -2,7 +2,9 @@ package fr.tm.ima.pocs.chatbot.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -31,7 +33,7 @@ public class WeebhookController {
     
     @RequestMapping(value = "/webhook", method = RequestMethod.POST)
     @Produces(MediaType.APPLICATION_JSON)
-    String webhook(@RequestBody final WebhookMessage message) {
+    WebhookResponse webhook(@RequestBody final WebhookMessage message) {
         LOGGER.info("Appel de la méthode /webhook du controller");
         
         String intentName = message.getResult().getMetadata().getIntentName();
@@ -50,17 +52,18 @@ public class WeebhookController {
                 apiAiContext.getParameters().put(COUNTER, Integer.toString(counter +1));
             }            
         }
-        // ddd
+        // Préparatoin de la réponse
         WebhookResponse webhookResponse = new WebhookResponse();
         
         webhookResponse.setDisplayText("Reponse webhook");
         List<ApiAiContext> outApiAiContexts = new ArrayList<ApiAiContext>();
         ApiAiContext outApiAiContext = new ApiAiContext();
-        outApiAiContext.setName("weather");
+        outApiAiContext.setName("attempt_counter");
+        Map<String,String> parameters = new HashMap<String, String>();
+        parameters.put("counter", "1");
+        outApiAiContext.setParameters(parameters);
         outApiAiContext.setLifespan(2);
-        
         outApiAiContexts.add(outApiAiContext);
-        
         webhookResponse.setContextOut(apiAiContexts);
         
         ObjectMapper mapper = new ObjectMapper();
@@ -80,13 +83,13 @@ public class WeebhookController {
         }
         
         if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
-            //webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
-            return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\",\"contextOut\": [{\"name\":\"test-context\", \"lifespan\":2, \"parameters\":{\"counter\":\""+ (counter + 1) +"\"}}]}";            
+            webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
+            //return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\",\"contextOut\": [{\"name\":\"test-context\", \"lifespan\":2, \"parameters\":{\"counter\":\""+ (counter + 1) +"\"}}]}";            
         }else{
-            //webhookResponse.setSpeech("Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989");
-            return "{\"speech\":\"Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989 \", \"displayText\": \"reponse webhook ggg\"}";
+            webhookResponse.setSpeech("Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989");
+            //return "{\"speech\":\"Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989 \", \"displayText\": \"reponse webhook ggg\"}";
         }
         
-        //return webhookResponse;
+        return webhookResponse;
     }
 }
