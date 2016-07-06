@@ -13,7 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.DispatcherServlet;
 
 @SpringBootApplication
-@PropertySource(value = "file:///${confIma}/chatbot-demo/parametrage.properties")
+//@PropertySource(value = "file:///${confIma}/chatbot-demo/parametrage.properties")
 public class ChatbotDemoApplication extends SpringBootServletInitializer {
     /**
      * Logger.
