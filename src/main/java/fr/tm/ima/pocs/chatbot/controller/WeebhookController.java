@@ -36,10 +36,10 @@ public class WeebhookController {
         for (ApiAiContext apiAiContext : apiAiContexts) {
             if(apiAiContext.getParameters().containsKey("counter")){
                 counter = Integer.parseInt(apiAiContext.getParameters().get("counter"));
-                apiAiContext.getParameters().replace("counter", Integer.toString(counter), Integer.toString(counter +1));
+                apiAiContext.getParameters().put("counter", Integer.toString(counter +1));
             }            
         }
-        //
+        // dd
         WebhookResponse webhookResponse = new WebhookResponse();
         
         webhookResponse.setDisplayText("Reponse webhook");
