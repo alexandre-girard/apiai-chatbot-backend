@@ -49,12 +49,12 @@ public class WeebhookController {
         WebhookResponse webhookResponse = new WebhookResponse();
         
         webhookResponse.setDisplayText("Reponse webhook");
-        webhookResponse.setContextOut(apiAiContexts);
+        webhookResponse.setContexts(apiAiContexts);
         
         if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
             webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
             
-            webhookResponse.getContextOut().remove(0);
+            webhookResponse.getContexts().remove(0);
             //return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\"}";            
         }else{
             webhookResponse.setSpeech("Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989");

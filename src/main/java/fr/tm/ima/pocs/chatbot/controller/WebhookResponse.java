@@ -11,7 +11,7 @@ public class WebhookResponse {
     
     private ApiAiData data;
     
-    private List<ApiAiContext> contextOut;
+    private List<ApiAiContext> contexts;
     
     private String source = "IMAWebhook";
 
@@ -43,12 +43,13 @@ public class WebhookResponse {
         this.data = data;
     }
 
-    public List<ApiAiContext> getContextOut() {
-        return contextOut;
+
+    public List<ApiAiContext> getContexts() {
+        return contexts;
     }
 
-    public void setContextOut(List<ApiAiContext> contextOut) {
-        this.contextOut = contextOut;
+    public void setContexts(List<ApiAiContext> contexts) {
+        this.contexts = contexts;
     }
 
     public String getSource() {
