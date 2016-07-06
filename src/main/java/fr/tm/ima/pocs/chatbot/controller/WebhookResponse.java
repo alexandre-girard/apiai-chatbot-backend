@@ -9,6 +9,8 @@ public class WebhookResponse {
     
     private String displayText;
     
+    private ApiAiData data;
+    
     private List<ApiAiContext> contextOut;
     
     private String source = "IMAWebhook";
@@ -33,6 +35,13 @@ public class WebhookResponse {
         this.displayText = displayText;
     }
 
+    public ApiAiData getData() {
+        return data;
+    }
+
+    public void setData(ApiAiData data) {
+        this.data = data;
+    }
 
     public List<ApiAiContext> getContextOut() {
         return contextOut;

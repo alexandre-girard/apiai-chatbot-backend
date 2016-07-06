@@ -31,6 +31,8 @@ public class WeebhookController {
         
         String intentName = message.getResult().getMetadata().getIntentName();
         
+        
+        
         // Gestion du compteur
         int counter = 0;
         List<ApiAiContext> apiAiContexts = message.getResult().getContexts();
@@ -52,10 +54,7 @@ public class WeebhookController {
         if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
             webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
             
-            System.out.println(webhookResponse.getContextOut().get(0));
-            System.out.println("####################");
-            System.out.println(webhookResponse.getContextOut().get(0).getParameters().get(COUNTER));
-            
+            webhookResponse.getContextOut().remove(0);
             //return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\"}";            
         }else{
             webhookResponse.setSpeech("Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989");
