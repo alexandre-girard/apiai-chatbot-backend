@@ -52,6 +52,8 @@ public class WeebhookController {
         if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
             webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
             
+            System.out.println(webhookResponse.getContextOut().get(0));
+            System.out.println("####################");
             System.out.println(webhookResponse.getContextOut().get(0).getParameters().get(COUNTER));
             
             //return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\"}";            
