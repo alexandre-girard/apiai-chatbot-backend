@@ -1,11 +1,15 @@
 package fr.tm.ima.pocs.chatbot.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.common.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,10 +56,28 @@ public class WeebhookController {
         webhookResponse.setDisplayText("Reponse webhook");
         List<ApiAiContext> outApiAiContexts = new ArrayList<ApiAiContext>();
         ApiAiContext outApiAiContext = new ApiAiContext();
-        outApiAiContext.setName("toto");
+        outApiAiContext.setName("weather");
+        outApiAiContext.setLifespan(2);
+        
         outApiAiContexts.add(outApiAiContext);
         
         webhookResponse.setContextOut(apiAiContexts);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        
+        try {
+            System.out.println("######################");
+            System.out.println(mapper.writeValueAsString(webhookResponse));
+        } catch (JsonGenerationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
         if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
             //webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
