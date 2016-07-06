@@ -27,7 +27,7 @@ public class WeebhookController {
     
     @RequestMapping(value = "/webhook", method = RequestMethod.POST)
     @Produces(MediaType.APPLICATION_JSON)
-    WebhookResponse webhook(@RequestBody final WebhookMessage message) {
+    String webhook(@RequestBody final WebhookMessage message) {
         LOGGER.info("Appel de la méthode /webhook du controller");
         
         String intentName = message.getResult().getMetadata().getIntentName();
@@ -58,13 +58,13 @@ public class WeebhookController {
         webhookResponse.setContextOut(apiAiContexts);
         
         if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
-            webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
-            //return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\"}";            
+            //webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
+            return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\",\"contextOut\": [{\"name\":\"weather\", \"lifespan\":2, \"parameters\":{\"city\":\"Rome\"}}]}";            
         }else{
-            webhookResponse.setSpeech("Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989");
-            //return "{\"speech\":\"Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989 \", \"displayText\": \"reponse webhook ggg\"}";
+            //webhookResponse.setSpeech("Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989");
+            return "{\"speech\":\"Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989 \", \"displayText\": \"reponse webhook ggg\"}";
         }
         
-        return webhookResponse;
+        //return webhookResponse;
     }
 }
