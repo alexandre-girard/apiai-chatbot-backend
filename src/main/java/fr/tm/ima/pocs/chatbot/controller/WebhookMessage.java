@@ -16,4 +16,9 @@ public class WebhookMessage {
     public void setResult(ApiAiResult result) {
         this.result = result;
     }
+
+    @Override
+    public String toString() {
+        return "WebhookMessage [result=" + result + "]";
+    }
 }
