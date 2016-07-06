@@ -3,6 +3,7 @@ package fr.tm.ima.pocs.chatbot.controller;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.elasticsearch.common.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +23,13 @@ public class WeebhookController {
     @Produces(MediaType.APPLICATION_JSON)
     String webhook(@RequestBody final WebhookMessage message) {
         LOGGER.info("Appel de la méthode /webhook du controller " + message);
-
-        return "{\"speech\":\"Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989 \", \"displayText\": \"reponse webhook ggg\"}";
+        
+        String intentName = message.getResult().getMetadata().getIntentName();
+        
+        if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
+            return "{\"speech\":\"Je ne comprend pas...\", \"displayText\": \"reponse webhook ggg\"}";            
+        }else{
+            return "{\"speech\":\"Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989 \", \"displayText\": \"reponse webhook ggg\"}";
+        }
     }
 }
