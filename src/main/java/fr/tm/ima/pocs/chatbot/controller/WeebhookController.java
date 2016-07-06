@@ -1,5 +1,6 @@
 package fr.tm.ima.pocs.chatbot.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Produces;
@@ -49,12 +50,15 @@ public class WeebhookController {
         WebhookResponse webhookResponse = new WebhookResponse();
         
         webhookResponse.setDisplayText("Reponse webhook");
-        webhookResponse.setContexts(apiAiContexts);
+        List<ApiAiContext> outApiAiContexts = new ArrayList<ApiAiContext>();
+        ApiAiContext outApiAiContext = new ApiAiContext();
+        outApiAiContext.setName("toto");
+        outApiAiContexts.add(outApiAiContext);
+        
+        webhookResponse.setContextOut(apiAiContexts);
         
         if(StringUtils.equalsIgnoreCase(intentName, "000_assistance_fallback")){
             webhookResponse.setSpeech("Je ne comprend pas pour la "+ counter + "...");
-            
-            webhookResponse.getContexts().remove(0);
             //return "{\"speech\":\"Je ne comprend pas pour la "+ counter + "...\", \"displayText\": \"reponse webhook ggg\"}";            
         }else{
             webhookResponse.setSpeech("Très bien je comprend, je vous met en relation. Pour information votre numéro de dossier 8989");
