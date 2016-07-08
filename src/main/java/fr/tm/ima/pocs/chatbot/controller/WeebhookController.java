@@ -40,18 +40,21 @@ public class WeebhookController {
         
         
         
-        // Gestion du compteur
+        // Gestion du compteur, tentative de récupération de la valeur du compteur
         int counter = 0;
-//        List<ApiAiContext> apiAiContexts = message.getResult().getContexts();
-//        for (ApiAiContext apiAiContext : apiAiContexts) {
-//            if(apiAiContext.getParameters().containsKey(COUNTER)){
-//                counter = Integer.parseInt(apiAiContext.getParameters().get(COUNTER));
-//                
-//                System.out.println("Valeur counter " + counter);
-//                
-//                apiAiContext.getParameters().put(COUNTER, Integer.toString(counter +1));
-//            }            
-//        }
+        
+        List<ApiAiContext> apiAiContexts = message.getResult().getContexts();
+        
+        for (ApiAiContext apiAiContext : apiAiContexts) {
+            if(apiAiContext.getParameters().containsKey(COUNTER)){
+                counter = Integer.parseInt(apiAiContext.getParameters().get(COUNTER));
+                
+                System.out.println("Valeur counter " + counter);
+                counter++;
+                System.out.println("Nouvelle Valeur counter " + counter);
+            }            
+        }
+        
         // Préparatoin de la réponse
         WebhookResponse webhookResponse = new WebhookResponse();
         
@@ -60,7 +63,7 @@ public class WeebhookController {
         ApiAiContext outApiAiContext = new ApiAiContext();
         outApiAiContext.setName("attempt_counter");
         Map<String,String> parameters = new HashMap<String, String>();
-        parameters.put("counter", "1");
+        parameters.put(COUNTER, Integer.toString(counter));
         outApiAiContext.setParameters(parameters);
         outApiAiContext.setLifespan(2);
         outApiAiContexts.add(outApiAiContext);
