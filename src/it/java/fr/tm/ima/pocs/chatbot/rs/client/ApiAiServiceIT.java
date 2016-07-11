@@ -23,14 +23,29 @@ import fr.tm.ima.pocs.chatbot.controller.ChatMessage;
 
 //@RunWith(SpringJUnit4ClassRunner.class)
 public class ApiAiServiceIT {
+    private static final String CONTEXT_SOCIETAIRE = "societaire";
 
-    private static final String TYPE_VEHICULE = "typeVehicule";
+    private static final String CONTEXT_VEHICULE = "vehicule";
 
-    private static final String SWITCH_TO_HUMAN = "switch_to_human";
+    private static final String ACTION_STOP_CONVERSATION = "stop_conversation";
 
-    private static final String NOM_SOCIETAIRE = "GIRARD";
+    private static final String ACTION_SWITCH_TO_HUMAN = "switch_to_human";
 
-    private static final String NUMERO_IMMATRICULATION = "11-22-33-44";
+    private static final String INTENTION_ASSISTANCE_ACCIDENT_CORPOREL = "000_assistance_accident_corporel";
+
+    private static final String PARAM_NUMERO_IMMATRICULATION = "numeroImmatriculation";
+
+    private static final String PARAM_TYPE_ASSISTANCE = "typeAssistance";
+
+    private static final String PARAM_TYPE_VEHICULE = "typeVehicule";
+
+    private static final String DEUX_ROUES = "deux-roues";
+
+    private static final String BATTERIE = "de batterie";
+
+    private static final String NOM_SOCIETAIRE_VALUE = "GIRARD";
+
+    private static final String NUMERO_IMMATRICULATION_VALUE = "11-22-33-44";
 
     private static final String ACCIDENT_MATERIEL = "accident_materiel";
 
@@ -72,10 +87,10 @@ public class ApiAiServiceIT {
         response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification de l'intention
-        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("000_assistance_accident_corporel"));
+        assertThat(response.getResult().getMetadata().getIntentName(), equalTo(INTENTION_ASSISTANCE_ACCIDENT_CORPOREL));
 
         // Vérification de l'action
-        assertThat(response.getResult().getAction(), equalTo("stop_conversation"));
+        assertThat(response.getResult().getAction(), equalTo(ACTION_STOP_CONVERSATION));
 
         // Vérification du reset du context
         assertThat(response.getResult().getContexts(), is(empty()));
@@ -101,7 +116,7 @@ public class ApiAiServiceIT {
         assertThat(response.getResult().getMetadata().getIntentName(), equalTo("001_assistance_accident_corporel"));
 
         // Vérification de l'action
-        assertThat(response.getResult().getAction(), equalTo("stop_conversation"));
+        assertThat(response.getResult().getAction(), equalTo(ACTION_STOP_CONVERSATION));
 
         // Vérification du reset du context
         assertThat(response.getResult().getContexts(), is(empty()));
@@ -117,7 +132,10 @@ public class ApiAiServiceIT {
         response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification
-        checkAccidentIntention(response);
+        // Vérification de l'intention
+        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("000_assistance_accident_vehicule"));
+        // Vérification du context
+        assertThat(response.getResult().getContexts(), hasItem(new ApiAiContext("question_accident_blesse")));
 
         // Présence de blessé ?
         chatMessage.setMessage("non");
@@ -140,24 +158,35 @@ public class ApiAiServiceIT {
         // Vérification du context
         assertThat(
                 response.getResult().getContexts(),
-                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext("vehicule"), new ApiAiContext("societaire"),
+                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext(CONTEXT_VEHICULE), new ApiAiContext(CONTEXT_SOCIETAIRE),
                         new ApiAiContext(ACCIDENT_MATERIEL)));
         // Vérification des paramètres
-        assertThat(response.getResult().getParameters(), hasEntry(TYPE_VEHICULE, "voiture"));
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, "voiture"));
 
-        chatMessage.setMessage(NUMERO_IMMATRICULATION);
+        chatMessage.setMessage(NUMERO_IMMATRICULATION_VALUE);
         response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification de l'intention
-        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("003_assistance_vehicule_infoSoc"));
-        assertThat(response.getResult().getParameters(), hasEntry("numeroImmatriculation", NUMERO_IMMATRICULATION));
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("003_assistance_vehicule_infoSoc_locVehiculeAuto_query"));
+
+        assertThat(response.getResult().getParameters(),
+                hasEntry(PARAM_NUMERO_IMMATRICULATION, NUMERO_IMMATRICULATION_VALUE));
+        chatMessage.setMessage("oui");
+        response = apiAiService.getApiAiResponse(chatMessage);
+
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("004_assistance_vehicule_infoSoc_locVehiculeAuto_reply_ok"));
+
         assertThat(response.getResult().isActionIncomplete(), equalTo(true));
 
-        chatMessage.setMessage(NOM_SOCIETAIRE);
+        chatMessage.setMessage(NOM_SOCIETAIRE_VALUE);
         response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification de l'intention
-        checkIntentionInfoSocietaire(response, "voiture", "accident");
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("004_assistance_vehicule_infoSoc_locVehiculeAuto_reply_ok"));
+        checkIntentionInfoSocietaire(response, "voiture", "accident", "Adresse geolocalisée");
     }
 
     @Test
@@ -193,7 +222,7 @@ public class ApiAiServiceIT {
         assertThat(response.getResult().getParameters(), hasEntry("typeHabitation", "maison"));
 
         // Vérification de l'action
-        assertThat(response.getResult().getAction(), equalTo("stop_conversation"));
+        assertThat(response.getResult().getAction(), equalTo(ACTION_STOP_CONVERSATION));
 
         // Vérification du reset du context
         assertThat(response.getResult().getContexts(), is(empty()));
@@ -230,12 +259,12 @@ public class ApiAiServiceIT {
                 equalTo("002_assistance_accident_materiel_hors_vehicule"));
 
         // Vérification de l'action
-        assertThat(response.getResult().getAction(), equalTo(SWITCH_TO_HUMAN));
+        assertThat(response.getResult().getAction(), equalTo(ACTION_SWITCH_TO_HUMAN));
 
         // Vérification du reset du context
         assertThat(response.getResult().getContexts(), is(empty()));
     }
-    
+
     /**
      * Vérification de la réponse en cas d'accident.
      * 
@@ -249,24 +278,22 @@ public class ApiAiServiceIT {
     }
 
     private void checkIntentionInfoSocietaire(ApiAiResponse response, String expectedTypeVehicule,
-            String expectedTypeAssistance) {
-        // Vérification de l'intention
-        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("003_assistance_vehicule_infoSoc"));
+            String expectedTypeAssistance, String adresse) {
         assertThat(response.getResult().isActionIncomplete(), equalTo(false));
         // Vérification des paramètres
-        assertThat(response.getResult().getParameters(), hasEntry("numeroImmatriculation", NUMERO_IMMATRICULATION));
-        assertThat(response.getResult().getParameters(), hasEntry("nomSocietaire", NOM_SOCIETAIRE));
-        assertThat(response.getResult().getParameters(), hasEntry(TYPE_VEHICULE, expectedTypeVehicule));
+        assertThat(response.getResult().getParameters(),
+                hasEntry(PARAM_NUMERO_IMMATRICULATION, NUMERO_IMMATRICULATION_VALUE));
+        assertThat(response.getResult().getParameters(), hasEntry("nomSocietaire", NOM_SOCIETAIRE_VALUE));
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, expectedTypeVehicule));
         assertThat(response.getResult().getParameters(), hasEntry("typeAssistance", expectedTypeAssistance));
+        assertThat(response.getResult().getParameters(), hasEntry("adresse", adresse));
 
         // Vérification de l'action
-        assertThat(response.getResult().getAction(), equalTo(SWITCH_TO_HUMAN));
+        assertThat(response.getResult().getAction(), equalTo(ACTION_STOP_CONVERSATION));
 
         // Vérification du reset du context
         assertThat(response.getResult().getContexts(), is(empty()));
     }
-
- 
 
     @Test
     public void assistanceHabitation() {
@@ -280,7 +307,7 @@ public class ApiAiServiceIT {
         assertThat(response.getResult().getMetadata().getIntentName(), equalTo("000_assistance_habitation"));
 
         // Vérification de l'action
-        assertThat(response.getResult().getAction(), equalTo("stop_conversation"));
+        assertThat(response.getResult().getAction(), equalTo(ACTION_STOP_CONVERSATION));
 
         // Vérification du reset du context
         assertThat(response.getResult().getContexts(), is(empty()));
@@ -299,7 +326,7 @@ public class ApiAiServiceIT {
         assertThat(response.getResult().getMetadata().getIntentName(), equalTo("000_assistance_aide_domicile"));
 
         // Vérification de l'action
-        assertThat(response.getResult().getAction(), equalTo(SWITCH_TO_HUMAN));
+        assertThat(response.getResult().getAction(), equalTo(ACTION_SWITCH_TO_HUMAN));
 
         // Vérification du reset du context
         assertThat(response.getResult().getContexts(), is(empty()));
@@ -318,31 +345,43 @@ public class ApiAiServiceIT {
         assertThat(response.getResult().getMetadata().getIntentName(), equalTo("000_assistance_vehicule_pb_connu"));
         // Vérification du context
         assertThat(response.getResult().getContexts(),
-                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext("vehicule"), new ApiAiContext("societaire")));
+                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext(CONTEXT_VEHICULE), new ApiAiContext(CONTEXT_SOCIETAIRE)));
         // Vérification des paramètres
-        assertThat(response.getResult().getParameters(), hasEntry(TYPE_VEHICULE, "deux-roues"));
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, DEUX_ROUES));
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_ASSISTANCE, BATTERIE));
 
-        chatMessage.setMessage(NUMERO_IMMATRICULATION);
+        chatMessage.setMessage(NUMERO_IMMATRICULATION_VALUE);
         response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification de l'intention
-        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("003_assistance_vehicule_infoSoc"));
-        assertThat(response.getResult().getParameters(), hasEntry("numeroImmatriculation", NUMERO_IMMATRICULATION));
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("003_assistance_vehicule_infoSoc_locVehiculeAuto_query"));
+
+        // Vérification des paramètres
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, DEUX_ROUES));
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_ASSISTANCE, BATTERIE));
+        assertThat(response.getResult().getParameters(),
+                hasEntry(PARAM_NUMERO_IMMATRICULATION, NUMERO_IMMATRICULATION_VALUE));
+
+        chatMessage.setMessage("oui");
+        response = apiAiService.getApiAiResponse(chatMessage);
+
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("004_assistance_vehicule_infoSoc_locVehiculeAuto_reply_ok"));
+
         assertThat(response.getResult().isActionIncomplete(), equalTo(true));
 
-        chatMessage.setMessage(NOM_SOCIETAIRE);
+        chatMessage.setMessage(NOM_SOCIETAIRE_VALUE);
         response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification de l'intention
-        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("003_assistance_vehicule_infoSoc"));
-        assertThat(response.getResult().isActionIncomplete(), equalTo(false));
-
-        // Vérification de l'intention
-        checkIntentionInfoSocietaire(response, "deux-roues", "technique");
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("004_assistance_vehicule_infoSoc_locVehiculeAuto_reply_ok"));
+        checkIntentionInfoSocietaire(response, DEUX_ROUES, BATTERIE, "Adresse geolocalisée");
     }
 
     @Test
-    public void assistanceVehiculeProblemeInconnu() {
+    public void assistanceVehiculeProblemeInconnuGeoLocalise() {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setSessionId(sessionId());
         ApiAiResponse response;
@@ -354,39 +393,112 @@ public class ApiAiServiceIT {
         assertThat(response.getResult().getMetadata().getIntentName(), equalTo("000_assistance_vehicule_pb_inconnu"));
         // Vérification du context
         assertThat(response.getResult().getContexts(),
-                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext("vehicule")));
+                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext(CONTEXT_VEHICULE)));
         // Vérification des paramètres
-        assertThat(response.getResult().getParameters(), hasEntry(TYPE_VEHICULE, "véhicule"));
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, "véhicule"));
 
         chatMessage.setMessage("je n'ai plus d'essence");
         response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification de l'intention
-        assertThat(response.getResult().getMetadata().getIntentName(),
-                equalTo("001_assistance_vehicule_investigation_pb_ok"));
+        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("000_assistance_vehicule_pb_connu"));
         // Vérification du context
         assertThat(response.getResult().getContexts(),
-                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext("vehicule"), new ApiAiContext("societaire")));
+                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext(CONTEXT_VEHICULE), new ApiAiContext(CONTEXT_SOCIETAIRE)));
         // Vérification des paramètres
-        assertThat(response.getResult().getParameters(), hasEntry(TYPE_VEHICULE, "véhicule"));
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, "véhicule"));
+        assertThat(response.getResult().getParameters(), hasEntry("typeAssistance", "de panne sèche"));
 
-        chatMessage.setMessage(NUMERO_IMMATRICULATION);
+        chatMessage.setMessage(NUMERO_IMMATRICULATION_VALUE);
         response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification de l'intention
-        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("003_assistance_vehicule_infoSoc"));
-        assertThat(response.getResult().getParameters(), hasEntry("numeroImmatriculation", NUMERO_IMMATRICULATION));
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("003_assistance_vehicule_infoSoc_locVehiculeAuto_query"));
+        // Vérification des paramètres
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, "véhicule"));
+        assertThat(response.getResult().getParameters(), hasEntry("typeAssistance", "de panne sèche"));
+        assertThat(response.getResult().getParameters(),
+                hasEntry(PARAM_NUMERO_IMMATRICULATION, NUMERO_IMMATRICULATION_VALUE));
+
+        chatMessage.setMessage("oui");
+        response = apiAiService.getApiAiResponse(chatMessage);
+
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("004_assistance_vehicule_infoSoc_locVehiculeAuto_reply_ok"));
+
         assertThat(response.getResult().isActionIncomplete(), equalTo(true));
 
-        chatMessage.setMessage(NOM_SOCIETAIRE);
+        chatMessage.setMessage(NOM_SOCIETAIRE_VALUE);
         response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification de l'intention
-        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("003_assistance_vehicule_infoSoc"));
-        assertThat(response.getResult().isActionIncomplete(), equalTo(false));
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("004_assistance_vehicule_infoSoc_locVehiculeAuto_reply_ok"));
+        checkIntentionInfoSocietaire(response, "véhicule", "de panne sèche", "Adresse geolocalisée");
+    }
+
+    @Test
+    public void assistanceVehiculeProblemeInconnuNonGeoLocalise() {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setSessionId(sessionId());
+        ApiAiResponse response;
+
+        chatMessage.setMessage("pouvez vous me dépanner avec mon scooter");
+        response = apiAiService.getApiAiResponse(chatMessage);
 
         // Vérification de l'intention
-        checkIntentionInfoSocietaire(response, "véhicule", "de panne sèche");
+        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("000_assistance_vehicule_pb_inconnu"));
+        // Vérification du context
+        assertThat(response.getResult().getContexts(),
+                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext(CONTEXT_VEHICULE)));
+        // Vérification des paramètres
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, DEUX_ROUES));
+
+        chatMessage.setMessage("ma batterie est à plat");
+        response = apiAiService.getApiAiResponse(chatMessage);
+
+        // Vérification de l'intention
+        assertThat(response.getResult().getMetadata().getIntentName(), equalTo("000_assistance_vehicule_pb_connu"));
+        // Vérification du context
+        assertThat(response.getResult().getContexts(),
+                hasItems(new ApiAiContext(ASSISTANCE), new ApiAiContext(CONTEXT_VEHICULE), new ApiAiContext(CONTEXT_SOCIETAIRE)));
+        // Vérification des paramètres
+        // FIXME Devrait-être deux-roues mais perte du context car on peut
+        // arriver avec le context ou directement.
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, "véhicule"));
+        assertThat(response.getResult().getParameters(), hasEntry("typeAssistance", BATTERIE));
+
+        chatMessage.setMessage(NUMERO_IMMATRICULATION_VALUE);
+        response = apiAiService.getApiAiResponse(chatMessage);
+
+        // Vérification de l'intention
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("003_assistance_vehicule_infoSoc_locVehiculeAuto_query"));
+        // Vérification des paramètres
+        assertThat(response.getResult().getParameters(), hasEntry(PARAM_TYPE_VEHICULE, "véhicule"));
+        assertThat(response.getResult().getParameters(), hasEntry("typeAssistance", BATTERIE));
+        assertThat(response.getResult().getParameters(),
+                hasEntry(PARAM_NUMERO_IMMATRICULATION, NUMERO_IMMATRICULATION_VALUE));
+
+        chatMessage.setMessage("non");
+        response = apiAiService.getApiAiResponse(chatMessage);
+
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("004_assistance_vehicule_infoSoc_locVehiculeAuto_reply_ko"));
+
+        chatMessage.setMessage("rue de la plaine");
+        response = apiAiService.getApiAiResponse(chatMessage);
+
+        assertThat(response.getResult().isActionIncomplete(), equalTo(true));
+
+        chatMessage.setMessage(NOM_SOCIETAIRE_VALUE);
+        response = apiAiService.getApiAiResponse(chatMessage);
+
+        // Vérification de l'intention
+        assertThat(response.getResult().getMetadata().getIntentName(),
+                equalTo("004_assistance_vehicule_infoSoc_locVehiculeMan_reply_ok"));
+        checkIntentionInfoSocietaire(response, "véhicule", BATTERIE, "rue de la plaine");
     }
 
     @Ignore
