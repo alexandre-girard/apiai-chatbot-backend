@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -38,16 +40,28 @@ public class WeebhookController {
         
         String intentName = message.getResult().getMetadata().getIntentName();
         
+        Set<Entry<String, String>> parameters1 = message.getResult().getParameters().entrySet();
+        for (Entry<String, String> entry : parameters1) {
+            System.out.println(entry.getKey() + " --> " + entry.getValue());
+        }
+        
         // Gestion du compteur, tentative de récupération de la valeur du compteur
         int counter = 0;
         
         List<ApiAiContext> apiAiContexts = message.getResult().getContexts();
         
+        
+        if(message.getResult().getParameters().containsKey(COUNTER)){
+            counter = Integer.parseInt(message.getResult().getParameters().get(COUNTER));
+            
+            System.out.println("Valeur counter dans parametre " + counter);
+        }
+        
         for (ApiAiContext apiAiContext : apiAiContexts) {
             if(apiAiContext.getParameters().containsKey(COUNTER)){
                 counter = Integer.parseInt(apiAiContext.getParameters().get(COUNTER));
                 
-                System.out.println("Valeur counter " + counter);
+                System.out.println("Valeur counter dans context" + counter);
                 counter++;
             }            
         }
@@ -62,7 +76,7 @@ public class WeebhookController {
         Map<String,String> parameters = new HashMap<String, String>();
         parameters.put(COUNTER, Integer.toString(counter));
         outApiAiContext.setParameters(parameters);
-        outApiAiContext.setLifespan(2);
+        outApiAiContext.setLifespan(1);
         outApiAiContexts.add(outApiAiContext);
         webhookResponse.setContextOut(outApiAiContexts);
         
