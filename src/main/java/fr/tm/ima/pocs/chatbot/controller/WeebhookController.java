@@ -30,7 +30,6 @@ public class WeebhookController {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(WeebhookController.class);
 
-    
     @RequestMapping(value = "/webhook", method = RequestMethod.POST)
     @Produces(MediaType.APPLICATION_JSON)
     WebhookResponse webhook(@RequestBody final WebhookMessage message) {
@@ -46,12 +45,12 @@ public class WeebhookController {
         List<ApiAiContext> apiAiContexts = message.getResult().getContexts();
         
         for (ApiAiContext apiAiContext : apiAiContexts) {
+            System.out.println("apiAiContext " + apiAiContext.getName());
             if(apiAiContext.getParameters().containsKey(COUNTER)){
                 counter = Integer.parseInt(apiAiContext.getParameters().get(COUNTER));
                 
                 System.out.println("Valeur counter " + counter);
                 counter++;
-                System.out.println("Nouvelle Valeur counter " + counter);
             }            
         }
         
@@ -59,6 +58,12 @@ public class WeebhookController {
         WebhookResponse webhookResponse = new WebhookResponse();
         
         webhookResponse.setDisplayText("Reponse webhook");
+        
+        ApiAiData apiAiData = new ApiAiData();
+        apiAiData.setCounter(counter); 
+        
+        webhookResponse.setData(apiAiData);
+        
         List<ApiAiContext> outApiAiContexts = new ArrayList<ApiAiContext>();
         ApiAiContext outApiAiContext = new ApiAiContext();
         outApiAiContext.setName("attempt_counter");
